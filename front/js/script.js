@@ -4,7 +4,7 @@ fetch('http://localhost:3000/api/products')
     listAllProducts(data);
 })
 .catch((error) => {
-    console.error('Error:', error);
+    console.error('Error: ', error);
 });
 
 function listAllProducts(productsList){

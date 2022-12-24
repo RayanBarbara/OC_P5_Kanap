@@ -13,7 +13,7 @@ function getProductInformation() {
             displayProducts(productImgURL, productAltText, productName, productPrice, productDescription, productColor);
         })
         .catch((error) => {
-            console.error('Error:', error);
+            console.error('Error: ', error);
         });
 }
 
