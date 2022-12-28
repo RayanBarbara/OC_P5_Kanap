@@ -65,6 +65,7 @@ document.getElementById('addToCart').addEventListener('click', () => {
             localStorage.setItem('productsCart', JSON.stringify([]));
         }
         arrayPusher(command);
+        location.reload();
     }
 });
 

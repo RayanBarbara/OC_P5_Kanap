@@ -1,61 +1,47 @@
-function getCartProductsInformation() {
-  let cartDisplayZone = document.getElementById('cart__items');
-  cartDisplayZone.innerHTML = ``;
-  for (let j = 1; j < localStorage.length; j++) {
-    let productID = JSON.parse(localStorage.getItem(j)).id;
-    let productColor = JSON.parse(localStorage.getItem(j)).color;
-    let productQuantity = JSON.parse(localStorage.getItem(j)).quantity;
-    fetch('http://localhost:3000/api/products/' + productID)
-      .then((response) => response.json())
-      .then((productData) => {
-        productImgURL = productData.imageUrl;
-        productAltText = productData.altTxt;
-        productName = productData.name;
-        productPrice = productData.price;
-        displayCartProducts(productID, productImgURL, productAltText, productName, productColor, productPrice, productQuantity);
-        console.log(j);
-      })
-      .catch((error) => {
-        console.error('Error: ', error);
-      });
-  }
-  console.log('After for loop!');
-  console.log('Timeout B!');
-  setTimeout(() => {
-    productsTotal();
-    quantityChange();
-    deleteProduct();
-    console.log('Timeout E!');
-  }, 2000);
-}
-
-function displayCartProducts(id, imageUrl, altTxt, name, color, price, quantity) {
+function displayCartProducts(productsList) {
   let cartDisplayZone = document.getElementById('cart__items');
   let productDisplay = document.createElement('article');
-  productDisplay.innerHTML = `
-    <article class="cart__item" data-id="${id}" data-color="${color}" data-quantity="${quantity}" data-price="${price}">
+  if (localStorage.getItem('productsCart') === null) {
+    productDisplay.innerHTML = `
+    <article>
+      <h1>Your cart is empty!</h1>
+    </article>
+    `;
+  } else {
+    let cart = JSON.parse(localStorage.getItem('productsCart'));
+    for (let i = 0; i < cart.length; i++) {
+      for (product of productsList) {
+        let cartProductID = cart[i].id;
+        let productID = product._id;
+        if (productID === cartProductID) {
+          productDisplay.innerHTML += `
+              <article class="cart__item" data-id="${productID}" data-color="${cart[i].color}" data-quantity="${cart[i].quantity}" data-price="${product.price}">
                 <div class="cart__item__img">
-                  <img src="${imageUrl}" alt="${altTxt}">
+                  <img src="${product.imageUrl}" alt="${product.altTxt}">
                 </div>
                 <div class="cart__item__content">
                   <div class="cart__item__content__description">
-                    <h2>${name}</h2>
-                    <p>${color}</p>
-                    <p>${price}$</p>
+                    <h2>${product.name}</h2>
+                    <p>${cart[i].color}</p>
+                    <p>${product.price}$</p>
                   </div>
                   <div class="cart__item__content__settings">
                     <div class="cart__item__content__settings__quantity">
                       <p>Quantity :</p>
-                      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${quantity}">
+                      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${cart[i].quantity}">
                     </div>
                     <div class="cart__item__content__settings__delete">
-                      <p class="deleteItem" data-id="${id}" data-color="${color}">Delete</p>
+                      <p class="deleteItem" data-id="${productID}" data-color="${cart[i].color}">Delete</p>
                     </div>
                   </div>
                 </div>
               </article>
-    `;
-  cartDisplayZone.appendChild(productDisplay);
+              `;
+          cartDisplayZone.appendChild(productDisplay);
+        }
+      }
+    }
+  }
 }
 
 function productsTotal() {
@@ -74,17 +60,16 @@ function quantityChange() {
   const cartProduct = document.querySelectorAll('.cart__item');
   cartProduct.forEach((cartProduct) => {
     cartProduct.addEventListener('change', ($event) => {
-      for (let i = 1; i < localStorage.length; i++) {
-        let id = JSON.parse(localStorage.getItem(i)).id;
-        let color = JSON.parse(localStorage.getItem(i)).color;
-        if (id === cartProduct.dataset.id && color === cartProduct.dataset.color) {
+      let cart = JSON.parse(localStorage.getItem('productsCart'));
+      for (let i = 0; i < cart.length; i++) {
+        if (cart[i].id === cartProduct.dataset.id && cart[i].color === cartProduct.dataset.color) {
           let command = {
-            id: id,
-            color: color,
-            quantity: $event.target.value
+            id: cart[i].id,
+            color: cart[i].color,
+            quantity: +$event.target.value
           };
-          localStorage.setItem(i, JSON.stringify(command));
-          console.log(JSON.parse(localStorage.getItem(i)));
+          cart[i] = command;
+          localStorage.setItem('productsCart', JSON.stringify(cart));
           cartProduct.dataset.quantity = command.quantity;
         }
       }
@@ -97,35 +82,26 @@ function deleteProduct() {
   const deleteButton = document.querySelectorAll('.cart__item .deleteItem');
   deleteButton.forEach((deleteButton) => {
     deleteButton.addEventListener('click', () => {
-      for (let i = 1; i < localStorage.length; i++) {
-        let productID = JSON.parse(localStorage.getItem(i)).id;
-        let productColor = JSON.parse(localStorage.getItem(i)).color;
-        if (productID === deleteButton.dataset.id && productColor === deleteButton.dataset.color) {
-          console.log(i);
-          localStorage.removeItem(i);
-          changeKeyForStorageItem(i);
+      let cart = JSON.parse(localStorage.getItem('productsCart'));
+      for (let i = 0; i < cart.length; i++) {
+        if (cart[i].id === deleteButton.dataset.id && cart[i].color === deleteButton.dataset.color) {
+          cart.splice(i, 1);
+          localStorage.setItem('productsCart', JSON.stringify(cart));
         }
       }
-      getCartProductsInformation();
+      location.reload();
     });
   });
 }
 
-function changeKeyForStorageItem(oldKey) {
-  if (oldKey < localStorage.length) {
-    for (let i = oldKey + 1; i <= localStorage.length; i++) {
-      let nextProductID = JSON.parse(localStorage.getItem(i)).id;
-      let nextProductColor = JSON.parse(localStorage.getItem(i)).color;
-      let nextProductQuantity = JSON.parse(localStorage.getItem(i)).quantity;
-      let command = {
-        id: nextProductID,
-        color: nextProductColor,
-        quantity: nextProductQuantity
-      };
-      localStorage.setItem(i-1, JSON.stringify(command));
-    }
-    localStorage.removeItem(localStorage.length);
-  }
-}
-
-getCartProductsInformation();
+fetch('http://localhost:3000/api/products')
+  .then((response) => response.json())
+  .then((data) => {
+    displayCartProducts(data);
+    productsTotal();
+    quantityChange();
+    deleteProduct();
+  })
+  .catch((error) => {
+    console.error('Error: ', error);
+  });
