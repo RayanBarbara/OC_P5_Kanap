@@ -1,3 +1,8 @@
+const letterRegExp = new RegExp(/^[a-zA-Z]+$/);
+const emailRegExp = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
+let orderButton = document.getElementById('order');
+orderButton.disabled = true;
+
 function displayCartProducts(productsList) {
   let cartDisplayZone = document.getElementById('cart__items');
   let productDisplay = document.createElement('article');
@@ -93,6 +98,78 @@ function deleteProduct() {
     });
   });
 }
+
+function checkData() {
+  let firstName = document.getElementById('firstName').value;
+  let lastName = document.getElementById('lastName').value;
+  let address = document.getElementById('address').value;
+  let city = document.getElementById('city').value;
+  let email = document.getElementById('email').value;
+  if (letterRegExp.test(firstName) && letterRegExp.test(lastName) && letterRegExp.test(address) && letterRegExp.test(city) && emailRegExp.test(email)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function createOrderCart() {
+  let cart = JSON.parse(localStorage.getItem('productsCart'));
+  let orderCart = [];
+  for (let i = 0; i < cart.length; i++) {
+    orderCart.push(cart[i].id);
+  }
+  return orderCart;
+}
+
+document.querySelectorAll('input').forEach((inputs) => {
+  inputs.addEventListener('blur', () => {
+    if (inputs.value.trim().length === 0) {
+      document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Please fill the field!';
+      orderButton.disabled = true;
+    } else {
+      document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
+      if (letterRegExp.test(inputs.value) === false) {
+        if (inputs.id !== 'address' && inputs.id !== 'email') {
+          document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Only letters are allowed in this field!';
+          orderButton.disabled = true;
+        } else if (emailRegExp.test(inputs.value) === false && inputs.id === 'email') {
+          document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'This email is invalid!';
+          orderButton.disabled = true;
+        } else if (checkData()) {
+          orderButton.disabled = false;
+        }
+      }
+    }
+  });
+});
+
+document.getElementById('order').addEventListener('click', ($event) => {
+  $event.preventDefault();
+  let order = {
+    contact: {
+      firstName: document.getElementById('firstName').value,
+      lastName: document.getElementById('lastName').value,
+      address: document.getElementById('address').value,
+      city: document.getElementById('city').value,
+      email: document.getElementById('email').value
+    },
+    products: createOrderCart()
+  };
+  fetch('http://localhost:3000/api/products/order', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(order)
+  })
+    .then((response) => response.json())
+    .then((order) => {
+      console.log('Success ', order);
+    })
+    .catch((error) => {
+      console.error('Error: ', error);
+    });
+});
 
 fetch('http://localhost:3000/api/products')
   .then((response) => response.json())
