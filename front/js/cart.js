@@ -1,5 +1,6 @@
 const letterRegExp = new RegExp(/^[a-zA-Z]+$/);
 const emailRegExp = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
+const addressRegExp = new RegExp(/^[A-Za-z0-9]*$/);
 let orderButton = document.getElementById('order');
 orderButton.disabled = true;
 
@@ -12,6 +13,7 @@ function displayCartProducts(productsList) {
       <h1>Your cart is empty!</h1>
     </article>
     `;
+    cartDisplayZone.appendChild(productDisplay);
   } else {
     let cart = JSON.parse(localStorage.getItem('productsCart'));
     for (let i = 0; i < cart.length; i++) {
@@ -105,8 +107,12 @@ function checkData() {
   let address = document.getElementById('address').value;
   let city = document.getElementById('city').value;
   let email = document.getElementById('email').value;
-  if (letterRegExp.test(firstName) && letterRegExp.test(lastName) && letterRegExp.test(address) && letterRegExp.test(city) && emailRegExp.test(email)) {
-    return true;
+  if (localStorage.getItem('productsCart') !== null) {
+    if (letterRegExp.test(firstName) && letterRegExp.test(lastName) && addressRegExp.test(address) && letterRegExp.test(city) && emailRegExp.test(email)) {
+      return true;
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
@@ -125,19 +131,34 @@ document.querySelectorAll('input').forEach((inputs) => {
   inputs.addEventListener('blur', () => {
     if (inputs.value.trim().length === 0) {
       document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Please fill the field!';
-      orderButton.disabled = true;
+      document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
     } else {
       document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
-      if (letterRegExp.test(inputs.value) === false) {
-        if (inputs.id !== 'address' && inputs.id !== 'email') {
-          document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Only letters are allowed in this field!';
-          orderButton.disabled = true;
-        } else if (emailRegExp.test(inputs.value) === false && inputs.id === 'email') {
-          document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'This email is invalid!';
-          orderButton.disabled = true;
-        } else if (checkData()) {
-          orderButton.disabled = false;
-        }
+      if (letterRegExp.test(inputs.value) === false && inputs.id !== 'address' && inputs.id !== 'email') {
+        document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Only letters are allowed in this field!';
+        document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
+      } else if (letterRegExp.test(inputs.value) === true && inputs.id !== 'address' && inputs.id !== 'email') {
+        document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
+        document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em green';
+      }
+      if (addressRegExp.test(inputs.value) === false && inputs.id === 'address') {
+        document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Only letters and numbers are allowed in this field!';
+        document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
+      } else if (addressRegExp.test(inputs.value) === true && inputs.id === 'address') {
+        document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
+        document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em green';
+      }
+      if (emailRegExp.test(inputs.value) === false && inputs.id === 'email') {
+        document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'This email is invalid!';
+        document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
+      } else if (emailRegExp.test(inputs.value) === true && inputs.id === 'email') {
+        document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
+        document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em green';
+      }
+      if (checkData()) {
+        orderButton.disabled = false;
+      } else {
+        orderButton.disabled = true;
       }
     }
   });
