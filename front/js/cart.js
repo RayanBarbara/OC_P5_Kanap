@@ -185,7 +185,6 @@ document.getElementById('order').addEventListener('click', ($event) => {
   })
     .then((response) => response.json())
     .then((order) => {
-      console.log('Success ', order);
       window.location.href = `../html/confirmation.html?orderID=${order.orderId}`;
       localStorage.clear();
     })

@@ -28,8 +28,8 @@ function arrayPusher(newCommandEntry) {
         let productID = oldProductsCart[i].id;
         if (newCommandEntry.id === productID) {
             let productColor = oldProductsCart[i].color;
-            if (newCommandEntry.color === productColor) {
-                let productQuantity = oldProductsCart[i].quantity + newCommandEntry.quantity;
+            let productQuantity = oldProductsCart[i].quantity + newCommandEntry.quantity;
+            if (newCommandEntry.color === productColor && productQuantity <= 100) {
                 let command = {
                     id: productID,
                     color: productColor,
@@ -38,6 +38,9 @@ function arrayPusher(newCommandEntry) {
                 oldProductsCart[i] = command;
                 localStorage.setItem('productsCart', JSON.stringify(oldProductsCart));
                 bool = false;
+            }else if(newCommandEntry.color === productColor && productQuantity > 100){
+                bool = false;
+                alert('Only a maximum quantity of one hundred per type of products is allowed!');
             }
         }
     }
