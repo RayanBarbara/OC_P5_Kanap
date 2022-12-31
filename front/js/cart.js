@@ -1,12 +1,21 @@
+// Regular expression which limit characters to letters
 const letterRegExp = new RegExp(/^[a-zA-Z]+$/);
+
+// Regular expression which check if an email is valid or not
 const emailRegExp = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
+
+// Regular expression which limit characters to letter and numbers
 const addressRegExp = new RegExp(/^[A-Za-z0-9]*$/);
+
+// Disable order button from contact form until all condition are met
 let orderButton = document.getElementById('order');
 orderButton.disabled = true;
 
+// Function which display the cart's content
 function displayCartProducts(productsList) {
   let cartDisplayZone = document.getElementById('cart__items');
   let productDisplay = document.createElement('article');
+  // Check if the cart is empty
   if (localStorage.getItem('productsCart') === null) {
     productDisplay.innerHTML = `
     <article>
@@ -16,6 +25,7 @@ function displayCartProducts(productsList) {
     cartDisplayZone.appendChild(productDisplay);
   } else {
     let cart = JSON.parse(localStorage.getItem('productsCart'));
+    // Loop trough the cart and display all the cart's products information (name, price, color and quantity)
     for (let i = 0; i < cart.length; i++) {
       for (product of productsList) {
         let cartProductID = cart[i].id;
@@ -51,10 +61,12 @@ function displayCartProducts(productsList) {
   }
 }
 
+//Function which calculate the total quantity and total price of all cart's products
 function productsTotal() {
   let totalPrice = 0;
   let totalQuantity = 0;
   const cartProduct = document.querySelectorAll('.cart__item');
+  // Fetch from each cart's products displayed the quantity and price before summing them to their respective total amount
   cartProduct.forEach((cartProduct) => {
     totalQuantity += +cartProduct.dataset.quantity;
     totalPrice += +cartProduct.dataset.price * +cartProduct.dataset.quantity;
@@ -63,13 +75,17 @@ function productsTotal() {
   document.getElementById('totalPrice').textContent = totalPrice;
 }
 
+// Function dealing with the change of quantity of a cart's product display by synchronizing their quantity with the cart array
 function quantityChange() {
   const cartProduct = document.querySelectorAll('.cart__item');
+  // Check at all time and for all cart's products display if the quantity has changed
   cartProduct.forEach((cartProduct) => {
     cartProduct.addEventListener('change', ($event) => {
       let cart = JSON.parse(localStorage.getItem('productsCart'));
+      // Loop trough the cart array to find the product corresponding to the cart's product display which quantity has changed
       for (let i = 0; i < cart.length; i++) {
         if (cart[i].id === cartProduct.dataset.id && cart[i].color === cartProduct.dataset.color) {
+          // Adjust the quantity of the product in the cart array updating the cart array located in the local storage
           let command = {
             id: cart[i].id,
             color: cart[i].color,
@@ -80,18 +96,23 @@ function quantityChange() {
           cartProduct.dataset.quantity = command.quantity;
         }
       }
+      // Re-calculate the total quantity and price of all cart's products
       productsTotal();
     });
   });
 }
 
+// Function dealing with the deletion of a cart's product
 function deleteProduct() {
   const deleteButton = document.querySelectorAll('.cart__item .deleteItem');
+  // Check at all time and for all the cart's product display if the `delete button` has been clicked on
   deleteButton.forEach((deleteButton) => {
     deleteButton.addEventListener('click', () => {
       let cart = JSON.parse(localStorage.getItem('productsCart'));
+      // Loop trough the cart array to find the product corresponding to the display which the `delete button` has been clicked on
       for (let i = 0; i < cart.length; i++) {
         if (cart[i].id === deleteButton.dataset.id && cart[i].color === deleteButton.dataset.color) {
+          // Delete the said product from the cart before updating the cart array located in the local storage
           cart.splice(i, 1);
           localStorage.setItem('productsCart', JSON.stringify(cart));
         }
@@ -101,6 +122,7 @@ function deleteProduct() {
   });
 }
 
+// Function checking if all the input of the contact form respect their Regular Expression
 function checkData() {
   let firstName = document.getElementById('firstName').value;
   let lastName = document.getElementById('lastName').value;
@@ -118,6 +140,7 @@ function checkData() {
   }
 }
 
+// TO REVIEW!
 function createOrderCart() {
   let cart = JSON.parse(localStorage.getItem('productsCart'));
   let orderCart = [];
@@ -127,13 +150,16 @@ function createOrderCart() {
   return orderCart;
 }
 
+// Check at all times and for all contact form inputs if they have been updated
 document.querySelectorAll('input').forEach((inputs) => {
   inputs.addEventListener('blur', () => {
+    // Check if the inputs are empty and remind the user if the field is empty
     if (inputs.value.trim().length === 0) {
       document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Please fill the field!';
       document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
     } else {
       document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
+      // Check if the city, first and last name don't use other things than letter and remind the user if the input is incorrect
       if (letterRegExp.test(inputs.value) === false && inputs.id !== 'address' && inputs.id !== 'email') {
         document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Only letters are allowed in this field!';
         document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
@@ -141,6 +167,7 @@ document.querySelectorAll('input').forEach((inputs) => {
         document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
         document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em green';
       }
+      // Check if the address is only composed of letter and number and remind the user if the input is incorrect
       if (addressRegExp.test(inputs.value) === false && inputs.id === 'address') {
         document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'Only letters and numbers are allowed in this field!';
         document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
@@ -148,6 +175,7 @@ document.querySelectorAll('input').forEach((inputs) => {
         document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
         document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em green';
       }
+      // Check if the email is valid or not and remind the user if the input is incorrect
       if (emailRegExp.test(inputs.value) === false && inputs.id === 'email') {
         document.getElementById(inputs.id + 'ErrorMsg').innerHTML = 'This email is invalid!';
         document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em red';
@@ -155,6 +183,7 @@ document.querySelectorAll('input').forEach((inputs) => {
         document.getElementById(inputs.id + 'ErrorMsg').innerHTML = '';
         document.getElementById(inputs.id).style.boxShadow = '0 0 0.5em green';
       }
+      // Check if the data inserted are valid or not and correspondingly update the disabled state of the `Order`button
       if (checkData()) {
         orderButton.disabled = false;
       } else {
@@ -164,8 +193,10 @@ document.querySelectorAll('input').forEach((inputs) => {
   });
 });
 
+// Check if the `Order` has been clicked on
 document.getElementById('order').addEventListener('click', ($event) => {
   $event.preventDefault();
+  // Create order element
   let order = {
     contact: {
       firstName: document.getElementById('firstName').value,
@@ -176,6 +207,7 @@ document.getElementById('order').addEventListener('click', ($event) => {
     },
     products: createOrderCart()
   };
+  // POST an order containing the cart and the checked contact data of the user
   fetch('http://localhost:3000/api/products/order', {
     method: 'POST',
     headers: {
@@ -185,6 +217,7 @@ document.getElementById('order').addEventListener('click', ($event) => {
   })
     .then((response) => response.json())
     .then((order) => {
+      // Re-locate the user to the confirmation page to get its order ID
       window.location.href = `../html/confirmation.html?orderID=${order.orderId}`;
       localStorage.clear();
     })
@@ -193,6 +226,7 @@ document.getElementById('order').addEventListener('click', ($event) => {
     });
 });
 
+//GET from API all products data before displaying those located in the cart and dealing with their modification/deletion
 fetch('http://localhost:3000/api/products')
   .then((response) => response.json())
   .then((data) => {
