@@ -1,11 +1,11 @@
 // Regular expression which limit characters to letters
-const letterRegExp = new RegExp(/^[a-zA-Z]+$/);
+const letterRegExp = new RegExp(/^[a-zA-Z\s]*$/);
 
 // Regular expression which check if an email is valid or not
 const emailRegExp = new RegExp('[a-z0-9]+@[a-z]+\.[a-z]{2,3}');
 
 // Regular expression which limit characters to letter and numbers
-const addressRegExp = new RegExp(/^[A-Za-z0-9]*$/);
+const addressRegExp = new RegExp(/^[a-zA-Z0-9 ]*$/);
 
 // Disable order button from contact form until all condition are met
 let orderButton = document.getElementById('order');
@@ -140,7 +140,7 @@ function checkData() {
   }
 }
 
-// TO REVIEW!
+// Function creating an array containing the cart's products' ID
 function createOrderCart() {
   let cart = JSON.parse(localStorage.getItem('productsCart'));
   let orderCart = [];
@@ -222,6 +222,7 @@ document.getElementById('order').addEventListener('click', ($event) => {
       localStorage.clear();
     })
     .catch((error) => {
+      document.querySelector('h1').textContent = 'There is an error with the order!';
       console.error('Error: ', error);
     });
 });
@@ -236,5 +237,6 @@ fetch('http://localhost:3000/api/products')
     deleteProduct();
   })
   .catch((error) => {
+    document.querySelector('h1').textContent = 'There is an error with the fetched products!';
     console.error('Error: ', error);
   });

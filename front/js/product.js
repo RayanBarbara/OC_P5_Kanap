@@ -105,5 +105,6 @@ fetch('http://localhost:3000/api/products/' + productID)
         displayProducts(productImgURL, productAltText, productName, productPrice, productDescription, productColor);
     })
     .catch((error) => {
+        document.querySelector('h1').textContent = 'There is an error with the fetched products!';
         console.error('Error: ', error);
     });

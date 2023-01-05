@@ -25,5 +25,6 @@ fetch('http://localhost:3000/api/products')
     listAllProducts(data);
   })
   .catch((error) => {
+    document.querySelector('h1').textContent = 'There is an error with the fetched products!';
     console.error('Error: ', error);
   });
