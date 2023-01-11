@@ -11,27 +11,19 @@ For this project, only the following technologies are allowed:
 
 ## How to install and run the project
 
-To test simply & quickly, please visit the online demo: 
-- https://rayanbarbara.github.io/OC_P5_Kanap
-
-Otherwise, clone the project:
+Clone the project:
 ```terminal
 git clone https://github.com/RayanBarbara/OC_P5_Kanap.git
 ```
 
-Install dependencies:
+Go to the back folder and install dependencies :
 ```terminal
- yarn install
+npm install
 ```
 
-And start the server!
+Start the server and listen to port```3000```!
 ```terminal
-yarn dev
-```
-
-You can also build the project for production:
-```terminal
-yarn build
+node server
 ```
 
 ## License
